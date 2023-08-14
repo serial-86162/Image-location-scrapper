@@ -2,6 +2,8 @@ import os
 import exif
 import  folium
 from PIL import Image 
+import json
+
 def get_gps_info(image_path):
     with open(image_path,'rb') as image_file:
         my_image = exif.Image(image_file)
@@ -22,21 +24,21 @@ def get_gps_info(image_path):
             return None, None
 def main():
     folder_path = r'c:\Users\OKI86162\Documents\Python scripts\Underthemassillusion\trial run'
-    map_center = [0,0]
+    markers = []
 
-    m =folium.Map(location=map_center,zoom_start=10)
+   
 
     for filename in os.listdir(folder_path):
         if filename.lower().endswith(('.jpg','.jpeg','.png')):
             image_path = os.path.join(folder_path,filename)
             lat,lon = get_gps_info(image_path)
             if lat is not None and lon is not None:
-                folium.Marker([lat,lon], popup=filename).add_to(m)
+                markers.append({"lat":lat,"lon":lon,"title":filename})
             else:
                 print(filename,"skipped")
-    
-    m.save('image_map.html')
-    print("Map saved as 'image_map'")
+    with open('markers.json','w') as json_file:
+        json.dump(markers,json_file,indent=4)
+
 if __name__ == "__main__":
     main()  
 
